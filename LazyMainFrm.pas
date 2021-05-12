@@ -12,12 +12,19 @@ type
     Label1: TLabel;
     Button2: TButton;
     Memo1: TMemo;
+    Button3: TButton;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   private
     { Private-Deklarationen }
     MeinIntWert: ILazyInit<Integer>;
+    fStrValue: ILazyInit<String>;
+
+    group: ILazyGroup;
+    value1: ILazyInit<String>;
+    value2: ILazyInit<String>;
   public
     { Public-Deklarationen }
   end;
@@ -35,10 +42,6 @@ begin
 end;
 
 procedure TForm30.Button2Click(Sender: TObject);
-var
-  group: ILazyGroup;
-  value1: TLazyInit<String>;
-  value2: TLazyInit<String>;
 begin
   Memo1.Lines.Add('START');
   group := LazyFactory.NewGroup;
@@ -67,12 +70,24 @@ begin
   Memo1.Lines.Add('FINISH');
 end;
 
+procedure TForm30.Button3Click(Sender: TObject);
+begin
+  Label1.Caption := fStrValue.Value;
+end;
+
 procedure TForm30.FormCreate(Sender: TObject);
 begin
   MeinIntWert := TLazyInit<Integer>.Create(
     function: Integer
     begin
       Result := 4711;
+    end);
+
+  fStrValue := TLazyInitAsync<String>.Create(
+    function: String
+    begin
+      Sleep(1500);
+      Result := 'ABCEDF';
     end);
 end;
 

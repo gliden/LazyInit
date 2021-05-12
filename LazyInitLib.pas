@@ -3,7 +3,7 @@ unit LazyInitLib;
 interface
 
 uses
-  System.SysUtils, System.Generics.Collections;
+  System.SysUtils, System.Generics.Collections, System.Classes;
 
 type
   ILazyInit<T> = interface
@@ -32,6 +32,27 @@ type
   public
     constructor Create(GetValueFunc: TFunc<T>);overload;
     constructor Create(GetValueFunc: TFunc<T>; group: ILazyGroup);overload;
+    destructor Destroy; override;
+    function Value: T;
+  end;
+
+  TInternalThread<T> = class(TThread)
+  private
+    FLoadFunction: TFunc<T>;
+    FOnDone: TProc<T>;
+  public
+    constructor Create(Load: TFunc<T>; OnDone: TProc<T>);
+    procedure Execute; override;
+  end;
+
+  TLazyInitAsync<T> = class(TInterfacedObject, ILazyInit<T>)
+  private
+    FInitThread: TInternalThread<T>;
+    FValue: T;
+    FGetValueFunction: TFunc<T>;
+  public
+    constructor Create(GetValueFunc: TFunc<T>);
+    destructor Destroy; override;
     function Value: T;
   end;
 
@@ -66,6 +87,12 @@ begin
   Create(GetValueFunc);
   FGroup := group;
   FGroup.RegisterLazy(Self);
+end;
+
+destructor TLazyInit<T>.Destroy;
+begin
+  FGroup := nil;
+  inherited;
 end;
 
 procedure TLazyInit<T>.DoInitialize;
@@ -105,6 +132,7 @@ begin
   begin
     lazy.DoInitialize;
   end;
+  FLazys.Clear;
 end;
 
 procedure TLazyGroup.RegisterLazy(lazy: ILazyInitializing);
@@ -117,6 +145,52 @@ end;
 class function LazyFactory.NewGroup: ILazyGroup;
 begin
   Result := TLazyGroup.Create;
+end;
+
+{ TLazyInitAsync<T> }
+
+constructor TLazyInitAsync<T>.Create(GetValueFunc: TFunc<T>);
+begin
+  FGetValueFunction := GetValueFunc;
+  FInitThread := TInternalThread<T>.Create(FGetValueFunction,
+    procedure(value: T)
+    begin
+      FValue := value;
+    end);
+end;
+
+destructor TLazyInitAsync<T>.Destroy;
+begin
+  FInitThread.Free;
+  inherited;
+end;
+
+function TLazyInitAsync<T>.Value: T;
+begin
+  if not FInitThread.Finished then FInitThread.WaitFor;
+  Result := FValue;
+end;
+
+{ TInternalThread<T> }
+
+constructor TInternalThread<T>.Create(Load: TFunc<T>; OnDone: TProc<T>);
+begin
+  inherited Create(false);
+  FLoadFunction := Load;
+  FOnDone := OnDone;
+end;
+
+procedure TInternalThread<T>.Execute;
+var
+  tmpValue: T;
+begin
+  inherited;
+  tmpValue := FLoadFunction;
+  Queue(
+    procedure
+    begin
+      FOnDone(tmpValue);
+    end);
 end;
 
 end.

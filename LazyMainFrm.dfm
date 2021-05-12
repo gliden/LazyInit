@@ -15,15 +15,15 @@ object Form30: TForm30
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
-    Left = 112
-    Top = 72
+    Left = 32
+    Top = 35
     Width = 31
     Height = 13
     Caption = 'Label1'
   end
   object Button1: TButton
-    Left = 112
-    Top = 144
+    Left = 32
+    Top = 64
     Width = 75
     Height = 25
     Caption = 'Simple Init'
@@ -31,8 +31,8 @@ object Form30: TForm30
     OnClick = Button1Click
   end
   object Button2: TButton
-    Left = 224
-    Top = 144
+    Left = 32
+    Top = 95
     Width = 75
     Height = 25
     Caption = 'Group Init'
@@ -47,5 +47,14 @@ object Form30: TForm30
     Lines.Strings = (
       'Memo1')
     TabOrder = 2
+  end
+  object Button3: TButton
+    Left = 32
+    Top = 126
+    Width = 75
+    Height = 25
+    Caption = 'Thread Init'
+    TabOrder = 3
+    OnClick = Button3Click
   end
 end
