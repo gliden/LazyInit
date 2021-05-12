@@ -26,8 +26,26 @@ object Form30: TForm30
     Top = 144
     Width = 75
     Height = 25
-    Caption = 'Button1'
+    Caption = 'Simple Init'
     TabOrder = 0
     OnClick = Button1Click
+  end
+  object Button2: TButton
+    Left = 224
+    Top = 144
+    Width = 75
+    Height = 25
+    Caption = 'Group Init'
+    TabOrder = 1
+    OnClick = Button2Click
+  end
+  object Memo1: TMemo
+    Left = 304
+    Top = 32
+    Width = 201
+    Height = 209
+    Lines.Strings = (
+      'Memo1')
+    TabOrder = 2
   end
 end

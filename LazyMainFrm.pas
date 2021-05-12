@@ -7,26 +7,13 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, LazyInitLib, Vcl.StdCtrls;
 
 type
-  TKundeInitRec = record
-    Name: String;
-    VName: String;
-    function GetName: String;
-  end;
-  TKunde = class(TObject)
-  private
-    FKundenDaten: TKundeInitRec;
-    FName: ILazyInit<String>;
-    FKndNr: Integer;
-  public
-    constructor Create;
-    property KndNr: Integer read FKndNr;
-    property Name: string read FKundenDaten.Name;
-  end;
-
   TForm30 = class(TForm)
     Button1: TButton;
     Label1: TLabel;
+    Button2: TButton;
+    Memo1: TMemo;
     procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   private
     { Private-Deklarationen }
@@ -43,13 +30,41 @@ implementation
 {$R *.dfm}
 
 procedure TForm30.Button1Click(Sender: TObject);
-var
-  kunde: TKunde;
 begin
-  kunde := TKunde.Create;
-  kunde.FKndNr:= 10029;
-//  label1.Caption := kunde.Name.Value;
-//  Label1.Caption := IntToStr(MeinIntWert.Value);
+  Label1.Caption := IntToStr(MeinIntWert.Value);
+end;
+
+procedure TForm30.Button2Click(Sender: TObject);
+var
+  group: ILazyGroup;
+  value1: TLazyInit<String>;
+  value2: TLazyInit<String>;
+begin
+  Memo1.Lines.Add('START');
+  group := LazyFactory.NewGroup;
+  value1 := TLazyInit<String>.Create(
+    function: String
+    begin
+      Memo1.Lines.Add('Init Value 1');
+      Result := 'ABC';
+    end, group);
+
+  value2 := TLazyInit<String>.Create(
+    function: String
+    begin
+      Memo1.Lines.Add('Init Value 2');
+      Result := 'DEF';
+    end, group);
+
+  Memo1.Lines.Add('Set Label Caption');
+  Label1.Caption := value1.Value;
+  Memo1.Lines.Add('Did Set Label Caption');
+
+  Memo1.Lines.Add('Set Button Caption');
+  Button2.Caption := value2.Value;
+  Memo1.Lines.Add('Did Set Button Caption');
+
+  Memo1.Lines.Add('FINISH');
 end;
 
 procedure TForm30.FormCreate(Sender: TObject);
@@ -59,24 +74,6 @@ begin
     begin
       Result := 4711;
     end);
-end;
-
-{ TKunde }
-
-constructor TKunde.Create;
-begin
-  FName := TLazyInit<String>.Create(
-    function: String
-    begin
-      Result := 'Kunde: '+IntTOStr(FKndNr);
-    end);
-end;
-
-{ TKundeInitRec }
-
-function TKundeInitRec.GetName: String;
-begin
-  Result := 'a';
 end;
 
 end.
